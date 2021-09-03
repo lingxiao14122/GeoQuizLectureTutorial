@@ -2,9 +2,7 @@ package com.example.geoquiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,8 +13,11 @@ public class MainActivity extends AppCompatActivity {
     // member variable
     private Button mBtnTrue;
     private Button mBtnFalse;
-    private TextView mTvQuestion;
     private Button mBtnNext;
+    private Button mBtnPrevious;
+
+    private TextView mTvQuestion;
+
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_oceans, true),
             new Question(R.string.question_mideast, false),
@@ -35,17 +36,20 @@ public class MainActivity extends AppCompatActivity {
         // bind variable to ui
         mBtnTrue = findViewById(R.id.btn_true);
         mBtnFalse = findViewById(R.id.btn_false);
-        mTvQuestion = findViewById(R.id.question_text_view);
         mBtnNext = findViewById(R.id.btnNext);
+        mBtnPrevious = findViewById(R.id.btnPrevious);
+        mTvQuestion = findViewById(R.id.question_text_view);
 
+        // init state and checking for ui
         updateQuestion();
+        checkPreviousNextButton();
 
         // init button listener
         mBtnTrue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // check user answer with current question
-                checkAnswer(mQuestionBank[mCurrentIndex].isAnswerTrue());
+                checkAnswer(true);
             }
         });
 
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // check user answer with current question
-                checkAnswer(mQuestionBank[mCurrentIndex].isAnswerTrue());
+                checkAnswer(false);
             }
         });
 
@@ -62,10 +66,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // update question index
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+
                 updateQuestion();
+                checkPreviousNextButton();
+
+
             }
         });
 
+        mBtnPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // update question index to previous
+                mCurrentIndex = (mCurrentIndex - 1);
+
+                updateQuestion();
+                checkPreviousNextButton();
+            }
+        });
 
     }
 
@@ -97,5 +115,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Toast.makeText(MainActivity.this, messageResId, Toast.LENGTH_SHORT).show();
+    }
+
+
+    /**
+     * Check question index to determine enable or disable next button and previous button
+     */
+    private void checkPreviousNextButton() {
+        // if question index is 0 then disable button, if not updateQuestion() will crash
+        if (mCurrentIndex <= 0) {
+            mBtnPrevious.setEnabled(false);
+        } else {
+            mBtnPrevious.setEnabled(true);
+        }
+
+        if (mCurrentIndex >= 4) {
+            mBtnNext.setEnabled(false);
+        } else {
+            mBtnNext.setEnabled(true);
+        }
     }
 }
